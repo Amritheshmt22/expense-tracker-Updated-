@@ -30,6 +30,8 @@ function Dashboard() {
       category: "Food",
       type: "expense",
     });
+  const [editingId, setEditingId] =
+  useState(null);
 
   // Fetch Expenses
   const fetchExpenses =
@@ -58,28 +60,48 @@ function Dashboard() {
   };
 
   // Add Expense
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+ const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    try {
+  try {
+
+    if (editingId) {
+      await API.put(
+        `/expenses/${editingId}`,
+        formData
+      );
+
+      setEditingId(null);
+    } else {
       await API.post(
         "/expenses",
         formData
       );
-
-      setFormData({
-        title: "",
-        amount: "",
-        category: "Food",
-        type: "expense",
-      });
-
-      fetchExpenses();
-    } catch (error) {
-      console.log(error);
     }
-  };
 
+    setFormData({
+      title: "",
+      amount: "",
+      category: "Food",
+      type: "expense",
+    });
+
+    fetchExpenses();
+
+  } catch (error) {
+    console.log(error);
+  }
+};
+  const handleEdit = (expense) => {
+  setEditingId(expense._id);
+
+  setFormData({
+    title: expense.title,
+    amount: expense.amount,
+    category: expense.category,
+    type: expense.type,
+  });
+};
   // Delete Expense
   const deleteExpense =
     async (id) => {
